@@ -27,8 +27,8 @@
                     <stop offset="100%" style="stop-color: #0288d1; stop-opacity: 1" />
                 </linearGradient>
                 <linearGradient id="grad-birds" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color: #0ba360; stop-opacity: 1" />
-                    <stop offset="100%" style="stop-color: #3cba92; stop-opacity: 1" />
+                    <stop offset="0%" style="stop-color: #56ab2f; stop-opacity: 1" />
+                    <stop offset="100%" style="stop-color: #a8e063; stop-opacity: 1" />
                 </linearGradient>
                 <linearGradient id="grad-waves" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" style="stop-color: #00b0ff; stop-opacity: 1" />
@@ -61,7 +61,25 @@
         <!-- Mixer Section -->
         <div class="mixer-section-wrapper">
             <div class="mixer-section">
-                <!-- Track 1: Wind -->
+                <!-- Track 1: Rain -->
+                <div class="track-column" data-track="rain">
+                    <div class="icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                            <rect width="256" height="256" fill="none" />
+                            <line x1="96" y1="208" x2="128" y2="160" fill="none" stroke="currentColor"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                            <line x1="120" y1="240" x2="152" y2="192" fill="none" stroke="currentColor"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                            <path d="M88,88a68.06,68.06,0,1,1,68,72H76A44,44,0,1,1,90.2,74.34" fill="none"
+                                stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="16" />
+                        </svg>
+                    </div>
+                    <span class="track-label">Rain</span>
+                    <input type="range" class="track-volume" data-track="rain" min="0" max="1" step="0.01" value="0">
+                </div>
+
+                <!-- Track 2: Wind -->
                 <div class="track-column" data-track="wind">
                     <div class="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -81,43 +99,7 @@
                     <input type="range" class="track-volume" data-track="wind" min="0" max="1" step="0.01" value="0">
                 </div>
 
-                <!-- Track 2: Rain -->
-                <div class="track-column" data-track="rain">
-                    <div class="icon-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                            <rect width="256" height="256" fill="none" />
-                            <line x1="96" y1="208" x2="128" y2="160" fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                            <line x1="120" y1="240" x2="152" y2="192" fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                            <path d="M88,88a68.06,68.06,0,1,1,68,72H76A44,44,0,1,1,90.2,74.34" fill="none"
-                                stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="16" />
-                        </svg>
-                    </div>
-                    <span class="track-label">Rain</span>
-                    <input type="range" class="track-volume" data-track="rain" min="0" max="1" step="0.01" value="0">
-                </div>
-
-                <!-- Track 3: Birds -->
-                <div class="track-column" data-track="birds">
-                    <div class="icon-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                            <rect width="256" height="256" fill="none" />
-                            <circle cx="164" cy="68" r="12" />
-                            <path
-                                d="M104,99.52V76.89c0-28.77,23-52.75,51.74-52.89a52,52,0,0,1,50.59,38.89L232,80,208,96v24a96,96,0,0,1-96,96H24a8,8,0,0,1-6.25-13Z"
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="16" />
-                            <line x1="128" y1="128" x2="54.67" y2="216" fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                        </svg>
-                    </div>
-                    <span class="track-label">Birds</span>
-                    <input type="range" class="track-volume" data-track="birds" min="0" max="1" step="0.01" value="0">
-                </div>
-
-                <!-- Track 4: Waves -->
+                <!-- Track 3: Waves -->
                 <div class="track-column" data-track="waves">
                     <div class="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -134,7 +116,7 @@
                     <input type="range" class="track-volume" data-track="waves" min="0" max="1" step="0.01" value="0">
                 </div>
 
-                <!-- Track 5: Fire -->
+                <!-- Track 4: Fire -->
                 <div class="track-column" data-track="fire">
                     <div class="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -149,6 +131,24 @@
                     </div>
                     <span class="track-label">Fire</span>
                     <input type="range" class="track-volume" data-track="fire" min="0" max="1" step="0.01" value="0">
+                </div>
+
+                <!-- Track 5: Birds -->
+                <div class="track-column" data-track="birds">
+                    <div class="icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                            <rect width="256" height="256" fill="none" />
+                            <circle cx="164" cy="68" r="12" />
+                            <path
+                                d="M104,99.52V76.89c0-28.77,23-52.75,51.74-52.89a52,52,0,0,1,50.59,38.89L232,80,208,96v24a96,96,0,0,1-96,96H24a8,8,0,0,1-6.25-13Z"
+                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="16" />
+                            <line x1="128" y1="128" x2="54.67" y2="216" fill="none" stroke="currentColor"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                        </svg>
+                    </div>
+                    <span class="track-label">Birds</span>
+                    <input type="range" class="track-volume" data-track="birds" min="0" max="1" step="0.01" value="0">
                 </div>
             </div>
         </div>

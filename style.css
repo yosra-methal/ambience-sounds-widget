@@ -260,6 +260,27 @@ input[type=range]::-webkit-slider-thumb:hover {
     margin-top: auto;
 }
 
+/* Track Specific Slider Colors */
+.track-column[data-track="rain"] input {
+    accent-color: #4facfe;
+}
+
+.track-column[data-track="wind"] input {
+    accent-color: #757F9A;
+}
+
+.track-column[data-track="waves"] input {
+    accent-color: #0061ff;
+}
+
+.track-column[data-track="fire"] input {
+    accent-color: #ff4500;
+}
+
+.track-column[data-track="birds"] input {
+    accent-color: #56ab2f;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     .header {
