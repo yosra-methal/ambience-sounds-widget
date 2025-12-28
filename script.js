@@ -179,16 +179,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const iconWrapper = columnElement.querySelector('.icon-wrapper');
         const svg = iconWrapper.querySelector('svg');
 
+        // Logic: 
+        // 1. If volume > 0, add 'active' class (triggers Gradient stroke in CSS)
+        // 2. Adjust opacity dynamically (Loud = Opaque/Bright, Quiet = Transparent/Dim)
+
         if (volume > 0) {
             columnElement.classList.add('active');
-            // Dynamic opacity from 0.4 to 1 based on volume
-            // low volume (0.01) -> 0.4 opacity
-            // high volume (1.0) -> 1.0 opacity
+            // Opacity range: 0.4 (faint) to 1.0 (fully visible)
             const computedOpacity = 0.4 + (volume * 0.6);
             svg.style.opacity = computedOpacity;
+            // Remove grayscale filter when active
+            svg.style.filter = 'none';
         } else {
             columnElement.classList.remove('active');
-            svg.style.opacity = ''; // Revert to CSS default (0.4)
+            // Revert to default CSS styles (Grey, 0.4 opacity, Grayscale)
+            svg.style.opacity = '';
+            svg.style.filter = '';
         }
     }
 });
