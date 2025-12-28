@@ -173,7 +173,6 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 
 /* Icon Styling - No Backgrounds */
-/* Icon Styling - No Backgrounds */
 .control-group,
 .sound-icon,
 .icon-wrapper {
@@ -201,6 +200,11 @@ input[type=range]::-webkit-slider-thumb:hover {
     opacity: 0.4;
     filter: grayscale(100%);
     transition: all 0.2s ease;
+}
+
+/* Fix: Hide the bounding box rect that comes with Phosphor icons */
+.icon-wrapper svg rect {
+    display: none;
 }
 
 /* Toggle class for active state or just use data-active from JS */
