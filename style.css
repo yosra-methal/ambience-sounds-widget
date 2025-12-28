@@ -262,28 +262,28 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 /* Track Specific Slider Colors - Force accent-color */
 .track-column[data-track="rain"] input[type="range"] {
-    accent-color: #4facfe;
+    accent-color: #4facfe !important;
 }
 
 .track-column[data-track="wind"] input[type="range"] {
-    accent-color: #757F9A;
+    accent-color: #757F9A !important;
 }
 
 .track-column[data-track="waves"] input[type="range"] {
-    accent-color: #0061ff;
+    accent-color: #0061ff !important;
 }
 
 .track-column[data-track="fire"] input[type="range"] {
-    accent-color: #ff4500;
+    accent-color: #ff4500 !important;
 }
 
 .track-column[data-track="birds"] input[type="range"] {
-    accent-color: #56ab2f;
+    accent-color: #56ab2f !important;
 }
 
 /* Master Volume Neutral Color */
 #master-volume {
-    accent-color: #444444;
+    accent-color: #333333 !important;
 }
 
 /* Responsive */
