@@ -178,23 +178,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateIconVisuals(columnElement, volume) {
         const iconWrapper = columnElement.querySelector('.icon-wrapper');
         const svg = iconWrapper.querySelector('svg');
+        const trackId = columnElement.dataset.track; // Get track ID (fire, wind, etc.)
 
-        // Logic: 
-        // 1. If volume > 0, add 'active' class (triggers Gradient stroke in CSS)
-        // 2. Adjust opacity dynamically (Loud = Opaque/Bright, Quiet = Transparent/Dim)
+        // Target all possible stroke-containing elements
+        const shapes = svg.querySelectorAll('path, line, circle, polyline, polygon, rect');
 
         if (volume > 0) {
             columnElement.classList.add('active');
-            // Opacity range: 0.4 (faint) to 1.0 (fully visible)
+
+            // Dynamic opacity calculation
             const computedOpacity = 0.4 + (volume * 0.6);
             svg.style.opacity = computedOpacity;
-            // Remove grayscale filter when active
             svg.style.filter = 'none';
+
+            // Apply Gradient Stroke URL directly to all shapes
+            shapes.forEach(shape => {
+                shape.style.stroke = `url(#grad-${trackId})`;
+            });
+
         } else {
             columnElement.classList.remove('active');
-            // Revert to default CSS styles (Grey, 0.4 opacity, Grayscale)
+
+            // Revert opacity and filter
             svg.style.opacity = '';
             svg.style.filter = '';
+
+            // Revert Stroke to Grey
+            shapes.forEach(shape => {
+                shape.style.stroke = '#cccccc';
+            });
         }
     }
 });
