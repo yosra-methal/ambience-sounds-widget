@@ -1,11 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Audio Configuration
+    // Audio Configuration
     const tracks = [
-        { id: 'rain', path: "./assets/audio/la pluie depuis l'intérieur.wav" },
-        { id: 'wind', path: './assets/audio/Vent.mp3' },
-        { id: 'waves', path: './assets/audio/Vagues.mp3' },
-        { id: 'fire', path: './assets/audio/fire.mp3' },
-        { id: 'birds', path: './assets/audio/Oiseaux.wav' }
+        { id: 'rain', path: "./assets/audio/la pluie depuis l'intérieur.wav?v=2" },
+        { id: 'wind', path: './assets/audio/Vent.mp3?v=2' },
+        { id: 'waves', path: './assets/audio/Vagues.mp3?v=2' },
+        { id: 'fire', path: './assets/audio/fire.mp3?v=2' },
+        { id: 'birds', path: './assets/audio/Oiseaux.wav?v=2' }
     ];
 
     // Global Audio State
@@ -54,7 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const arrayBuffer = await response.arrayBuffer();
 
             // 2. Decode into AudioBuffer
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            let audioBuffer;
+            try {
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            } catch (decodeErr) {
+                throw new Error(`Failed to decode audio for ${track.id}: ${decodeErr.message}`);
+            }
 
             // 3. Setup Gain Node for this track
             const gainNode = audioContext.createGain();
