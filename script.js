@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Audio Configuration
     const tracks = [
-        { id: 'wind', path: './assets/audio/wind.mp3' },
-        { id: 'rain', path: './assets/audio/rain.mp3' },
-        { id: 'birds', path: './assets/audio/birds.mp3' },
-        { id: 'waves', path: './assets/audio/waves.mp3' },
-        { id: 'fire', path: './assets/audio/fire.mp3' }
+        { id: 'wind', path: './assets/audio/Vent.mp3' },
+        { id: 'rain', path: './assets/audio/la pluie depuis l\'intérieur.wav' },
+        { id: 'birds', path: './assets/audio/Oiseaux.wav' },
+        { id: 'waves', path: './assets/audio/Vagues.mp3' },
+        { id: 'fire', path: './assets/audio/cheminée validée !.mp3' }
     ];
 
     let audioContext = null;
