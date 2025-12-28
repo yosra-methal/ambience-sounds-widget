@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Audio Configuration
     // Audio Configuration
     const tracks = [
-        { id: 'rain', path: "./assets/audio/la pluie depuis l'intérieur.wav?v=2" },
-        { id: 'wind', path: './assets/audio/Vent.mp3?v=2' },
-        { id: 'waves', path: './assets/audio/Vagues.mp3?v=2' },
-        { id: 'fire', path: './assets/audio/fire.mp3?v=2' },
-        { id: 'birds', path: './assets/audio/Oiseaux.wav?v=2' }
+        { id: 'rain', path: './assets/audio/rain.wav' },
+        { id: 'wind', path: './assets/audio/Vent.mp3' },
+        { id: 'waves', path: './assets/audio/Vagues.mp3' },
+        { id: 'fire', path: './assets/audio/fire.mp3' },
+        { id: 'birds', path: './assets/audio/Oiseaux.wav' }
     ];
 
     // Global Audio State
