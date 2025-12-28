@@ -260,25 +260,30 @@ input[type=range]::-webkit-slider-thumb:hover {
     margin-top: auto;
 }
 
-/* Track Specific Slider Colors */
-.track-column[data-track="rain"] input {
+/* Track Specific Slider Colors - Force accent-color */
+.track-column[data-track="rain"] input[type="range"] {
     accent-color: #4facfe;
 }
 
-.track-column[data-track="wind"] input {
+.track-column[data-track="wind"] input[type="range"] {
     accent-color: #757F9A;
 }
 
-.track-column[data-track="waves"] input {
+.track-column[data-track="waves"] input[type="range"] {
     accent-color: #0061ff;
 }
 
-.track-column[data-track="fire"] input {
+.track-column[data-track="fire"] input[type="range"] {
     accent-color: #ff4500;
 }
 
-.track-column[data-track="birds"] input {
+.track-column[data-track="birds"] input[type="range"] {
     accent-color: #56ab2f;
+}
+
+/* Master Volume Neutral Color */
+#master-volume {
+    accent-color: #444444;
 }
 
 /* Responsive */
