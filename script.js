@@ -8,11 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'fire', path: './assets/audio/cheminée validée !.mp3' }
     ];
 
+    // Global Audio State
     let audioContext = null;
     let masterGainNode = null;
     let isPlaying = false;
-    const fadeDuration = 2.0;
+    const fadeDuration = 1.0; // Seconds for smooth Master fade
 
+    // Track State: { [id]: { buffer, gainNode, sourceNode, loaded } }
     const trackNodes = {};
 
     // UI Elements
@@ -21,35 +23,107 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconPause = document.getElementById('icon-pause');
     const masterVolumeSlider = document.getElementById('master-volume');
 
-    // Initialize Tracks
-    tracks.forEach(track => {
-        const column = document.querySelector(`.track-column[data-track="${track.id}"]`);
-        const slider = column.querySelector('.track-volume');
+    // --- Initialization ---
 
-        // Initial visual state
-        updateIconVisuals(column, slider.value);
+    async function initAudioEngine() {
+        if (audioContext) return; // Prevent double init
 
-        slider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            updateTrackVolume(track.id, val);
-            updateIconVisuals(column, val);
-        });
-    });
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioContext();
 
-    // Master Volume
-    masterVolumeSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        if (audioContext && masterGainNode) {
-            // Master volume immediate control for responsiveness
-            masterGainNode.gain.cancelScheduledValues(audioContext.currentTime);
-            masterGainNode.gain.linearRampToValueAtTime(val, audioContext.currentTime + 0.1);
+        // Create Master Gain
+        masterGainNode = audioContext.createGain();
+        masterGainNode.gain.value = parseFloat(masterVolumeSlider.value);
+        masterGainNode.connect(audioContext.destination);
+
+        console.log("Audio Engine Initialized. Starting Preload...");
+
+        // Pre-load all tracks in parallel
+        const loadPromises = tracks.map(track => loadTrack(track));
+        await Promise.all(loadPromises);
+        console.log("All audio assets loaded and decoded.");
+    }
+
+    async function loadTrack(track) {
+        try {
+            // 1. Fetch ArrayBuffer
+            const response = await fetch(track.path);
+            if (!response.ok) throw new Error(`Failed to fetch ${track.path}`);
+            const arrayBuffer = await response.arrayBuffer();
+
+            // 2. Decode into AudioBuffer
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+            // 3. Setup Gain Node for this track
+            const gainNode = audioContext.createGain();
+            // Get initial volume from slider
+            const slider = document.querySelector(`.track-column[data-track="${track.id}"] input[type="range"]`);
+            const initialVol = slider ? parseFloat(slider.value) : 0;
+
+            gainNode.gain.value = initialVol;
+            gainNode.connect(masterGainNode);
+
+            // 4. Store Data
+            trackNodes[track.id] = {
+                buffer: audioBuffer,
+                gainNode: gainNode,
+                sourceNode: null,
+                loaded: true
+            };
+
+            // 5. Initial Visual Sync
+            if (slider) {
+                const column = document.querySelector(`.track-column[data-track="${track.id}"]`);
+                updateIconVisuals(column, initialVol);
+            }
+
+        } catch (error) {
+            console.error(`Error loading track ${track.id}:`, error);
         }
-    });
+    }
 
-    // Play/Pause
-    playPauseBtn.addEventListener('click', async () => {
+    // --- Playback Control (Gapless) ---
+
+    function startGaplessLoop(trackId) {
+        const data = trackNodes[trackId];
+        if (!data || !data.loaded || !data.buffer) return;
+
+        // Clean up old source if existing (robustness)
+        if (data.sourceNode) {
+            try { data.sourceNode.stop(); } catch (e) { }
+        }
+
+        // Create Source (Buffer Source Pattern)
+        const source = audioContext.createBufferSource();
+        source.buffer = data.buffer;
+        source.loop = true; // CRITICAL for gapless
+
+        // Optional: define loop start/end explicitly
+        source.loopStart = 0;
+        source.loopEnd = data.buffer.duration;
+
+        source.connect(data.gainNode);
+        source.start(0);
+
+        data.sourceNode = source;
+    }
+
+    function stopTrack(trackId) {
+        const data = trackNodes[trackId];
+        if (data && data.sourceNode) {
+            try {
+                data.sourceNode.stop();
+                data.sourceNode.disconnect();
+            } catch (e) {
+                // Ignore errors if already stopped or invalid state
+            }
+            data.sourceNode = null;
+        }
+    }
+
+    async function togglePlayback() {
         if (!audioContext) {
-            await initAudio();
+            await initAudioEngine();
         }
 
         if (audioContext.state === 'suspended') {
@@ -57,156 +131,136 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (isPlaying) {
-            pauseAll();
+            // PAUSE ACTION
+            const currentTime = audioContext.currentTime;
+
+            // Fade Out Master
+            masterGainNode.gain.cancelScheduledValues(currentTime);
+            masterGainNode.gain.setValueAtTime(masterGainNode.gain.value, currentTime);
+            masterGainNode.gain.linearRampToValueAtTime(0, currentTime + 0.5);
+
+            // Stop logic after fade
+            setTimeout(() => {
+                Object.keys(trackNodes).forEach(id => stopTrack(id));
+                isPlaying = false;
+                updatePlayButtonUI();
+                // Restore master gain value internally for next play
+                masterGainNode.gain.value = parseFloat(masterVolumeSlider.value);
+            }, 500);
+
         } else {
-            playAll();
+            // PLAY ACTION
+            // Start all sources immediately
+            Object.keys(trackNodes).forEach(id => {
+                startGaplessLoop(id);
+            });
+
+            // Fade In Master
+            const targetVol = parseFloat(masterVolumeSlider.value);
+            const currentTime = audioContext.currentTime;
+            masterGainNode.gain.cancelScheduledValues(currentTime);
+            masterGainNode.gain.setValueAtTime(0, currentTime);
+            masterGainNode.gain.linearRampToValueAtTime(targetVol, currentTime + fadeDuration);
+
+            isPlaying = true;
+            updatePlayButtonUI();
+        }
+    }
+
+    function updatePlayButtonUI() {
+        if (isPlaying) {
+            iconPlay.classList.add('hidden');
+            iconPause.classList.remove('hidden');
+            playPauseBtn.setAttribute('aria-label', 'Pause');
+        } else {
+            iconPlay.classList.remove('hidden');
+            iconPause.classList.add('hidden');
+            playPauseBtn.setAttribute('aria-label', 'Play');
+        }
+    }
+
+    // --- Inputs & Reactivity ---
+
+    // Master Volume
+    if (masterVolumeSlider) {
+        masterVolumeSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (audioContext && masterGainNode) {
+                masterGainNode.gain.cancelScheduledValues(audioContext.currentTime);
+                masterGainNode.gain.setTargetAtTime(val, audioContext.currentTime, 0.1);
+            }
+        });
+    }
+
+    // Individual Track Volume & Visuals
+    tracks.forEach(track => {
+        const slider = document.querySelector(`.track-column[data-track="${track.id}"] input[type="range"]`);
+        const column = document.querySelector(`.track-column[data-track="${track.id}"]`);
+
+        if (slider && column) {
+            // Initial Visual Set
+            updateIconVisuals(column, parseFloat(slider.value));
+
+            slider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+
+                // 1. Update Audio Gain
+                if (trackNodes[track.id] && trackNodes[track.id].gainNode && audioContext) {
+                    const node = trackNodes[track.id].gainNode;
+                    node.gain.cancelScheduledValues(audioContext.currentTime);
+                    node.gain.setTargetAtTime(val, audioContext.currentTime, 0.1);
+                }
+
+                // 2. Update Visuals
+                updateIconVisuals(column, val);
+            });
         }
     });
 
-    async function initAudio() {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioContext = new AudioContext();
-
-        masterGainNode = audioContext.createGain();
-        masterGainNode.gain.value = parseFloat(masterVolumeSlider.value);
-        masterGainNode.connect(audioContext.destination);
-
-        // Load Tracks
-        for (const track of tracks) {
-            try {
-                const response = await fetch(track.path);
-                const arrayBuffer = await response.arrayBuffer();
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-                const gainNode = audioContext.createGain();
-                gainNode.gain.value = 0; // Volume controlled by slider
-                gainNode.connect(masterGainNode);
-
-                trackNodes[track.id] = {
-                    buffer: audioBuffer,
-                    gainNode: gainNode,
-                    sourceNode: null
-                };
-
-                // Sync with slider if it was moved before play
-                const slider = document.querySelector(`.track-volume[data-track="${track.id}"]`);
-                gainNode.gain.value = parseFloat(slider.value);
-
-            } catch (error) {
-                console.error(`Error loading track ${track.id}:`, error);
-            }
-        }
+    // Play Button Listener
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', togglePlayback);
     }
 
-    function startSource(trackId) {
-        const trackData = trackNodes[trackId];
-        if (!trackData || !trackData.buffer) return;
-
-        const source = audioContext.createBufferSource();
-        source.buffer = trackData.buffer;
-        source.loop = true;
-        source.connect(trackData.gainNode);
-        source.start(0);
-        trackData.sourceNode = source;
-    }
-
-    function stopSource(trackId) {
-        const trackData = trackNodes[trackId];
-        if (trackData && trackData.sourceNode) {
-            try {
-                trackData.sourceNode.stop();
-                trackData.sourceNode.disconnect();
-            } catch (e) { }
-            trackData.sourceNode = null;
-        }
-    }
-
-    function playAll() {
-        if (audioContext.state === 'suspended') audioContext.resume();
-
-        Object.keys(trackNodes).forEach(id => {
-            if (!trackNodes[id].sourceNode) {
-                startSource(id);
-            }
-        });
-
-        // Global fade in
-        const currentTime = audioContext.currentTime;
-        const targetVol = parseFloat(masterVolumeSlider.value);
-
-        masterGainNode.gain.cancelScheduledValues(currentTime);
-        masterGainNode.gain.setValueAtTime(masterGainNode.gain.value, currentTime);
-        masterGainNode.gain.linearRampToValueAtTime(targetVol, currentTime + fadeDuration);
-
-        // UI
-        isPlaying = true;
-        iconPlay.classList.add('hidden');
-        iconPause.classList.remove('hidden');
-        playPauseBtn.setAttribute('aria-label', 'Pause');
-    }
-
-    function pauseAll() {
-        if (!audioContext) return;
-
-        const currentTime = audioContext.currentTime;
-        // Global fade out
-        masterGainNode.gain.cancelScheduledValues(currentTime);
-        masterGainNode.gain.setValueAtTime(masterGainNode.gain.value, currentTime);
-        masterGainNode.gain.linearRampToValueAtTime(0, currentTime + fadeDuration);
-
-        // Optional: Stop sources after fade to save resources, or keep looping.
-        // For Gapless ambient mixer, keeping them running is safer if user plays again quickly.
-        // But to be "Clean", we can stop. Let's keep them running for instant resume.
-
-        isPlaying = false;
-        iconPlay.classList.remove('hidden');
-        iconPause.classList.add('hidden');
-        playPauseBtn.setAttribute('aria-label', 'Play');
-    }
-
-    function updateTrackVolume(trackId, value) {
-        if (!audioContext) return;
-        const trackData = trackNodes[trackId];
-        if (trackData && trackData.gainNode) {
-            const currentTime = audioContext.currentTime;
-            trackData.gainNode.gain.cancelScheduledValues(currentTime);
-            // Smooth volume change
-            trackData.gainNode.gain.linearRampToValueAtTime(value, currentTime + 0.2);
-        }
-    }
-
+    // --- Helper: Visuals (Strict Inline Styles) ---
     function updateIconVisuals(columnElement, volume) {
         const iconWrapper = columnElement.querySelector('.icon-wrapper');
         const svg = iconWrapper.querySelector('svg');
-        const trackId = columnElement.dataset.track; // Get track ID (fire, wind, etc.)
+        const trackId = columnElement.dataset.track;
 
-        // Target all possible stroke-containing elements
+        // Robust selector for all SVG shapes
         const shapes = svg.querySelectorAll('path, line, circle, polyline, polygon, rect');
+
+        // Logic: 
+        // Volume > 0: Add .active, set opacity 0.4-1.0, set Stroke Gradient
+        // Volume == 0: Remove .active, reset opacity, set Stroke Grey
 
         if (volume > 0) {
             columnElement.classList.add('active');
 
-            // Dynamic opacity calculation
             const computedOpacity = 0.4 + (volume * 0.6);
             svg.style.opacity = computedOpacity;
             svg.style.filter = 'none';
 
-            // Apply Gradient Stroke URL directly to all shapes
             shapes.forEach(shape => {
+                // Ensure we don't accidentally style hidden bounding rects with gradient if they are display:none
+                // But setting stroke on hidden element is harmless.
                 shape.style.stroke = `url(#grad-${trackId})`;
             });
 
         } else {
             columnElement.classList.remove('active');
 
-            // Revert opacity and filter
             svg.style.opacity = '';
             svg.style.filter = '';
 
-            // Revert Stroke to Grey
             shapes.forEach(shape => {
                 shape.style.stroke = '#cccccc';
             });
         }
     }
+
+    // Pre-init on load (browser might suspend it, but loading can happen)
+    initAudioEngine().catch(err => console.log("Auto-init deferred:", err));
+
 });
