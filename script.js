@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Audio Configuration
     const tracks = [
+        { id: 'rain', path: "./assets/audio/la pluie depuis l'intérieur.wav" },
         { id: 'wind', path: './assets/audio/Vent.mp3' },
-        { id: 'rain', path: './assets/audio/la pluie depuis l\'intérieur.wav' },
-        { id: 'birds', path: './assets/audio/Oiseaux.wav' },
         { id: 'waves', path: './assets/audio/Vagues.mp3' },
-        { id: 'fire', path: './assets/audio/cheminée validée !.mp3' }
+        { id: 'fire', path: './assets/audio/fire.mp3' },
+        { id: 'birds', path: './assets/audio/Oiseaux.wav' }
     ];
 
     // Global Audio State
@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // 1. Fetch ArrayBuffer
             const response = await fetch(track.path);
-            if (!response.ok) throw new Error(`Failed to fetch ${track.path}`);
+            if (!response.ok) {
+                throw new Error(`File not found: ${track.path} (Status: ${response.status})`);
+            }
             const arrayBuffer = await response.arrayBuffer();
 
             // 2. Decode into AudioBuffer
@@ -78,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } catch (error) {
-            console.error(`Error loading track ${track.id}:`, error);
+            console.error(`CRITICAL ERROR loading ${track.id}:`, error);
         }
     }
 
