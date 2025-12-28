@@ -1,0 +1,263 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --accent-color: #212121;
+    --neutral-grey: #e0e0e0;
+    --icon-grey: #cccccc;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: transparent;
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Main Widget Container */
+.widget-container {
+    background: var(--bg-color);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    /* Softer shadow for light theme */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.icon-button {
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.icon-button:hover {
+    background: #eeeeee;
+    transform: scale(1.05);
+}
+
+.icon-button svg {
+    display: block;
+}
+
+.icon-button .hidden {
+    display: none;
+}
+
+.master-volume-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.master-volume-container label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888888;
+    font-weight: 600;
+}
+
+/* Sliders */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+    cursor: pointer;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+/* Slider Track */
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s;
+    border: 2px solid #fff;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+/* Mixer Section */
+.mixer-section-wrapper {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cccccc transparent;
+    padding-bottom: 10px;
+    /* Space for scrollbar */
+}
+
+.mixer-section-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.mixer-section-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mixer-section-wrapper::-webkit-scrollbar-thumb {
+    background-color: #eeeeee;
+    border-radius: 3px;
+}
+
+.mixer-section-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #dddddd;
+}
+
+.mixer-section {
+    display: flex;
+    justify-content: space-between;
+    min-width: 400px;
+    gap: 16px;
+}
+
+.track-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 70px;
+    position: relative;
+    /* We utilize CSS variable --volume (0 to 1) set by JS for opacity logic */
+}
+
+/* Icon Styling - No Backgrounds */
+.icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.icon-wrapper svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke-width: 16;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    /* Default State (Volume 0): Faint Grey */
+    stroke: #cccccc;
+    opacity: 0.4;
+    filter: grayscale(100%);
+    transition: all 0.2s ease;
+}
+
+/* Toggle class for active state or just use data-active from JS */
+.track-column.active .icon-wrapper svg {
+    opacity: 1;
+    /* Fully visible */
+    filter: none;
+    stroke: var(--active-stroke, #333);
+    /* Fallback */
+}
+
+/* Define Gradient Strokes via var, but url() needs to be exact string */
+/* Actually, best to just use specific selectors since we can't easily pass url() in var without it being a string. 
+   Or we can use the technique: stroke: var(--stroke-url); 
+*/
+
+.track-column[data-track="wind"] .icon-wrapper svg {
+    --active-stroke: url(#grad-wind);
+}
+
+.track-column[data-track="rain"] .icon-wrapper svg {
+    --active-stroke: url(#grad-rain);
+}
+
+.track-column[data-track="birds"] .icon-wrapper svg {
+    --active-stroke: url(#grad-birds);
+}
+
+.track-column[data-track="waves"] .icon-wrapper svg {
+    --active-stroke: url(#grad-waves);
+}
+
+.track-column[data-track="fire"] .icon-wrapper svg {
+    --active-stroke: url(#grad-fire);
+}
+
+/* Apply variable when active */
+.track-column.active .icon-wrapper svg {
+    stroke: var(--active-stroke);
+}
+
+
+.track-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666666;
+    letter-spacing: 0.5px;
+}
+
+/* Controls */
+.track-volume {
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .header {
+        flex-wrap: wrap;
+    }
+
+    .widget-container {
+        padding: 16px;
+    }
+}
