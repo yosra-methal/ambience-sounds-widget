@@ -173,13 +173,18 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 
 /* Icon Styling - No Backgrounds */
+/* Icon Styling - No Backgrounds */
+.control-group,
+.sound-icon,
 .icon-wrapper {
     width: 48px;
     height: 48px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: transparent;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     transition: all 0.2s ease;
 }
 
