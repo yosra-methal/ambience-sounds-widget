@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Audio Configuration
     // Audio Configuration
     const tracks = [
-        { id: 'rain', path: './assets/audio/rain.wav' },
+        { id: 'rain', path: './assets/audio/RAIN.mp3' },
         { id: 'wind', path: './assets/audio/Vent.mp3' },
-        { id: 'waves', path: './assets/audio/Vagues.mp3' },
-        { id: 'fire', path: './assets/audio/fire.mp3' },
+        { id: 'waves', path: './assets/audio/waves.mp3' },
+        { id: 'fire', path: './assets/audio/FEU.mp3' },
         { id: 'birds', path: './assets/audio/Oiseaux.wav' }
     ];
 
@@ -66,7 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const gainNode = audioContext.createGain();
             // Get initial volume from slider
             const slider = document.querySelector(`.track-column[data-track="${track.id}"] input[type="range"]`);
-            const initialVol = slider ? parseFloat(slider.value) : 0;
+            let initialVol = slider ? parseFloat(slider.value) : 0;
+
+            if (track.id === 'waves') {
+                initialVol = initialVol * 0.6;
+            }
 
             gainNode.gain.value = initialVol;
             gainNode.connect(masterGainNode);
@@ -215,8 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 1. Update Audio Gain
                 if (trackNodes[track.id] && trackNodes[track.id].gainNode && audioContext) {
                     const node = trackNodes[track.id].gainNode;
+
+                    let finalVol = val;
+                    if (track.id === 'waves') {
+                        finalVol = val * 0.6;
+                    }
+
                     node.gain.cancelScheduledValues(audioContext.currentTime);
-                    node.gain.setTargetAtTime(val, audioContext.currentTime, 0.1);
+                    node.gain.setTargetAtTime(finalVol, audioContext.currentTime, 0.1);
                 }
 
                 // 2. Update Visuals
