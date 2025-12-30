@@ -110,10 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
         source.buffer = data.buffer;
         source.loop = true; // CRITICAL for gapless
 
-        // Auto-Trim Silence: Cut the last 0.25s to smooth out looping gaps
+        // Auto-Trim Silence: Cut the last 0.5s to smooth out looping gaps
         if (data.buffer.duration > 1) {
             source.loopStart = 0;
-            source.loopEnd = data.buffer.duration - 0.25;
+            source.loopEnd = data.buffer.duration - 0.5;
         }
 
         source.connect(data.gainNode);
