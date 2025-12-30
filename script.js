@@ -227,6 +227,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     node.gain.cancelScheduledValues(audioContext.currentTime);
                     node.gain.setTargetAtTime(finalVol, audioContext.currentTime, 0.1);
+
+                    // State Management: Start/Stop based on volume if Master is Playing
+                    if (isPlaying) {
+                        if (val > 0 && !trackNodes[track.id].sourceNode) {
+                            startGaplessLoop(track.id);
+                        } else if (val === 0 && trackNodes[track.id].sourceNode) {
+                            stopTrack(track.id);
+                        }
+                    }
                 }
 
                 // 2. Update Visuals
