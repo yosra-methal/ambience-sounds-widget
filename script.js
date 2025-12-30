@@ -110,16 +110,17 @@ document.addEventListener('DOMContentLoaded', () => {
         source.buffer = data.buffer;
         source.loop = true; // CRITICAL for gapless
 
-        // Auto-Trim Silence: Variable trim based on track
-        let trimAmount = 0.5; // Default for Fire/Birds
+        // "Safe Zone" Looping: Trim both start and end to strictly avoid silence
+        const SKIP_START = 0.2; // Skip intro silence
+        const SKIP_END = 0.5;   // Skip outro silence/fade
 
-        if (['rain', 'wind', 'waves'].includes(trackId)) {
-            trimAmount = 1.2; // Aggressive cut for problematic tracks
-        }
-
-        if (data.buffer.duration > 2) {
+        if (data.buffer.duration > (SKIP_START + SKIP_END + 0.1)) {
+            source.loopStart = SKIP_START;
+            source.loopEnd = data.buffer.duration - SKIP_END;
+        } else {
+            // Fallback for very short sounds (unlikely but safe)
             source.loopStart = 0;
-            source.loopEnd = data.buffer.duration - trimAmount;
+            source.loopEnd = data.buffer.duration;
         }
 
         source.connect(data.gainNode);
