@@ -110,9 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         source.buffer = data.buffer;
         source.loop = true; // CRITICAL for gapless
 
-        // Optional: define loop start/end explicitly - REMOVED for strict native behavior
-        // source.loopStart = 0;
-        // source.loopEnd = data.buffer.duration;
+        // Auto-Trim Silence: Cut the last 0.25s to smooth out looping gaps
+        if (data.buffer.duration > 1) {
+            source.loopStart = 0;
+            source.loopEnd = data.buffer.duration - 0.25;
+        }
 
         source.connect(data.gainNode);
         source.start(0);
