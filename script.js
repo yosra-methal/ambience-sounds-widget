@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let initialVol = slider ? parseFloat(slider.value) : 0;
 
             if (track.id === 'waves') {
-                initialVol = initialVol * 0.6;
+                initialVol = initialVol * 0.2;
             }
 
             gainNode.gain.value = initialVol;
@@ -110,9 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         source.buffer = data.buffer;
         source.loop = true; // CRITICAL for gapless
 
-        // Optional: define loop start/end explicitly
-        source.loopStart = 0;
-        source.loopEnd = data.buffer.duration;
+        // Optional: define loop start/end explicitly - REMOVED for strict native behavior
+        // source.loopStart = 0;
+        // source.loopEnd = data.buffer.duration;
 
         source.connect(data.gainNode);
         source.start(0);
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     let finalVol = val;
                     if (track.id === 'waves') {
-                        finalVol = val * 0.6;
+                        finalVol = val * 0.2;
                     }
 
                     node.gain.cancelScheduledValues(audioContext.currentTime);
