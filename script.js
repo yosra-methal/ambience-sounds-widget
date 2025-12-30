@@ -110,10 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
         source.buffer = data.buffer;
         source.loop = true; // CRITICAL for gapless
 
-        // Auto-Trim Silence: Cut the last 0.5s to smooth out looping gaps
-        if (data.buffer.duration > 1) {
+        // Auto-Trim Silence: Variable trim based on track
+        let trimAmount = 0.5; // Default for Fire/Birds
+
+        if (['rain', 'wind', 'waves'].includes(trackId)) {
+            trimAmount = 1.2; // Aggressive cut for problematic tracks
+        }
+
+        if (data.buffer.duration > 2) {
             source.loopStart = 0;
-            source.loopEnd = data.buffer.duration - 0.5;
+            source.loopEnd = data.buffer.duration - trimAmount;
         }
 
         source.connect(data.gainNode);
